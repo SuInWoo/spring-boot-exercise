@@ -1,2 +1,7 @@
-package com;public class UserMain {
+package com;
+
+public class UserMain {
+    public static void main(String[] args) {
+
+    }
 }
