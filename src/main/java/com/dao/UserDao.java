@@ -11,7 +11,7 @@ public class UserDao {
 
     private ConnectionMaker connectionMaker;
 
-    public UserDao(){
+    public UserDao() {
         this.connectionMaker = new LocalConnectionMaker();
     }
 
@@ -48,7 +48,7 @@ public class UserDao {
             ResultSet rs = ps.executeQuery();
             User user = null;
 
-            if(rs.next()) {
+            if (rs.next()) {
                 user = new User();
                 user.setId(rs.getString("id"));
                 user.setName(rs.getString("name"));
@@ -69,45 +69,71 @@ public class UserDao {
 
     }
 
-    public void deleteAll()  {
+    public void deleteAll() throws SQLException {
         Connection conn = null;
+        PreparedStatement ps = null;
+
         try {
             conn = connectionMaker.getConnection();
-
-            PreparedStatement ps = conn.prepareStatement("delete from `users`");
-
+            ps = conn.prepareStatement("delete from `users`");
             ps.executeUpdate();
-            ps.close();
-            conn.close();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw e;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
         }
 
 
     }
 
-    public int getCount()  {
+    public int getCount() throws SQLException {
         Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
         try {
             conn = connectionMaker.getConnection();
 
-            PreparedStatement ps = conn.prepareStatement("select count(*) from `users`");
+            ps = conn.prepareStatement("select count(*) from `users`");
 
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             rs.next();
-            int count = rs.getInt(1);
-
-            rs.close();
-            ps.close();
-            conn.close();
-
-            return count;
+            return rs.getInt(1);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw e;
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
         }
-
-
     }
 }
+
