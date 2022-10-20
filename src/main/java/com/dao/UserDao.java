@@ -19,10 +19,9 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
-    public void add(User user) {
-        Connection conn = null;
-        try {
-            conn = connectionMaker.getConnection();
+    public void add(User user) throws SQLException {
+
+            Connection conn = connectionMaker.getConnection();
 
             PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
             ps.setString(1, user.getId());
@@ -33,10 +32,8 @@ public class UserDao {
             ps.close();
             conn.close();
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
+
 
     public User get(String id) throws SQLException {
 
