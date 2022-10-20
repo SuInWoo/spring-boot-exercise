@@ -53,11 +53,14 @@ class UserDaoTest {
         userDao.deleteAll();
         assertEquals(0, userDao.getCount());
 
+
         userDao.add(user1);
         assertEquals(1, userDao.getCount());
         userDao.add(user2);
         assertEquals(2, userDao.getCount());
         userDao.add(user3);
         assertEquals(3, userDao.getCount());
+
+        userDao.deleteAll();
     }
 }

@@ -19,60 +19,99 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
-    public void add(User user) throws SQLException {
-        Connection conn = connectionMaker.getConnection();
+    public void add(User user) {
+        Connection conn = null;
+        try {
+            conn = connectionMaker.getConnection();
 
-        PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
-        ps.setString(1, "1");
-        ps.setString(2, "SuIn");
-        ps.setString(3, "1123");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
+            ps.setString(1, user.getId());
+            ps.setString(2, user.getName());
+            ps.setString(3, user.getPassword());
 
-        ps.executeUpdate(); //ctrl + enter
-        ps.close();
-        conn.close();
+            ps.executeUpdate(); //ctrl + enter
+            ps.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
 
     }
 
-    public User get(String id) throws SQLException {
-        Connection conn = connectionMaker.getConnection();  //db연결
+    public User get(String id) {
+        Connection conn = null;  //db연결
+        try {
+            conn = connectionMaker.getConnection();
 
-        PreparedStatement ps = conn.prepareStatement("SELECT id, name, password FROM `users` WHERE id = ?");
-        ps.setString(1, id);
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        User user = new User(rs.getString("id"), rs.getString("name"),
-                rs.getString("password"));
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM `users` WHERE id = ?");
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            User user = null;
 
-        rs.close();
-        ps.close();
-        conn.close();
+            if(rs.next()) {
+                user = new User();
+                user.setId(rs.getString("id"));
+                user.setName(rs.getString("name"));
+                user.setPassword(rs.getString("password"));
+            }
 
-        return user;
+            rs.close();
+            ps.close();
+            conn.close();
+
+            if (user == null) throw new NullPointerException();
+
+            return user;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
-    public void deleteAll() throws SQLException {
-        Connection conn = connectionMaker.getConnection();
+    public void deleteAll()  {
+        Connection conn = null;
+        try {
+            conn = connectionMaker.getConnection();
 
-        PreparedStatement ps = conn.prepareStatement("delete from users");
+            PreparedStatement ps = conn.prepareStatement("delete from `users`");
 
-        ps.executeUpdate();
-        ps.close();
-        conn.close();
+            ps.executeUpdate();
+            ps.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
-    public int getCount() throws SQLException {
-        Connection conn = connectionMaker.getConnection();
+    public int getCount()  {
+        Connection conn = null;
+        try {
+            conn = connectionMaker.getConnection();
 
-        PreparedStatement ps = conn.prepareStatement("select count(*) from users");
+            PreparedStatement ps = conn.prepareStatement("select count(*) from `users`");
 
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        int count = rs.getInt(1);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            int count = rs.getInt(1);
 
-        rs.close();
-        ps.close();
-        conn.close();
+            rs.close();
+            ps.close();
+            conn.close();
 
-        return count;
+            return count;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 }
