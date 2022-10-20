@@ -1,12 +1,11 @@
 package com.dao;
 
 import com.domain.User;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -23,14 +22,21 @@ class UserDaoTest {
     @Autowired
     ApplicationContext context;
 
+    private UserDao userDao;
+    private User user1, user2, user3;
+
+    @BeforeEach
+    void setUp(){
+        this.userDao = context.getBean("awsUserDao", UserDao.class);
+        this.user1 = new User("1", "SuIn", "1123");
+        this.user2 = new User("2", "Min", "1234");
+        this.user3 = new User("3", "Woo", "4312");
+    }
+
     @Test
     @DisplayName("insert and select Test")
     void addAndGet() throws SQLException {
-        User user1 = new User("1", "SuIn", "1123");
-
-        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
         userDao.deleteAll();
-        assertEquals(0, userDao.getCount());
 
         userDao.add(user1);
         assertEquals(1, userDao.getCount());
@@ -45,14 +51,7 @@ class UserDaoTest {
     @Test
     @DisplayName("count Test")
     void count() throws SQLException {
-        User user1 = new User("1", "SuIn", "1123");
-        User user2 = new User("2", "Min", "1234");
-        User user3 = new User("3", "Woo", "4312");
-
-        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
         userDao.deleteAll();
-        assertEquals(0, userDao.getCount());
-
 
         userDao.add(user1);
         assertEquals(1, userDao.getCount());

@@ -36,9 +36,6 @@ public class UserDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-
-
     }
 
     public User get(String id) {
@@ -49,7 +46,6 @@ public class UserDao {
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM `users` WHERE id = ?");
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
-            rs.next();
             User user = null;
 
             if(rs.next()) {
