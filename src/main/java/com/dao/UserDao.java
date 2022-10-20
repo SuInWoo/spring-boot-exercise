@@ -25,7 +25,7 @@ public class UserDao {
         PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
         ps.setString(1, "1");
         ps.setString(2, "SuIn");
-        ps.setString(3, "1026");
+        ps.setString(3, "1123");
 
         ps.executeUpdate(); //ctrl + enter
         ps.close();
