@@ -12,6 +12,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -25,11 +27,18 @@ class UserDaoTest {
     @DisplayName("insert and select Test")
     void addAndGet() throws SQLException {
         UserDao userDao = context.getBean("awsUserDao", UserDao.class);
+        userDao.deleteAll();
+        assertEquals(0, userDao.getCount());
+
         String id = "1";
-        userDao.add(new User(id, "Su", "1234"));
+        userDao.add(new User(id, "SuIn", "1026"));
+        assertEquals(1, userDao.getCount());
         User user = userDao.get(id);
 
-        assertEquals("Su", user.getName());
-        assertEquals("1234", user.getPassword());
+        assertEquals("SuIn", user.getName());
+        assertEquals("1026", user.getPassword());
+
+
+
     }
 }
