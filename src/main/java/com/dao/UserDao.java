@@ -38,10 +38,9 @@ public class UserDao {
         }
     }
 
-    public User get(String id) {
-        Connection conn = null;  //db연결
-        try {
-            conn = connectionMaker.getConnection();
+    public User get(String id) throws SQLException {
+
+            Connection conn = connectionMaker.getConnection();
 
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM `users` WHERE id = ?");
             ps.setString(1, id);
@@ -62,10 +61,6 @@ public class UserDao {
             if (user == null) throw new NullPointerException();
 
             return user;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
 
     }
 
