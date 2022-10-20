@@ -38,7 +38,25 @@ class UserDaoTest {
         assertEquals("SuIn", user.getName());
         assertEquals("1026", user.getPassword());
 
+        userDao.deleteAll();
+    }
 
+    @Test
+    @DisplayName("count Test")
+    void count() throws SQLException {
+        User user1 = new User("1", "suin", "1123");
+        User user2 = new User("2", "min", "1234");
+        User user3 = new User("3", "woo", "4312");
 
+        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
+        userDao.deleteAll();
+        assertEquals(0, userDao.getCount());
+
+        userDao.add(user1);
+        assertEquals(1, userDao.getCount());
+        userDao.add(user2);
+        assertEquals(2, userDao.getCount());
+        userDao.add(user3);
+        assertEquals(3, userDao.getCount());
     }
 }
