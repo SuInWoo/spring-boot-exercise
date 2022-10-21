@@ -40,7 +40,7 @@ class UserDaoTest {
 
         userDao.add(user1);
         assertEquals(1, userDao.getCount());
-        User user = userDao.get(user1.getId());
+        User user = userDao.findById(user1.getId());
 
         assertEquals(user1.getName(), user.getName());
         assertEquals(user1.getPassword(), user.getPassword());
@@ -68,7 +68,7 @@ class UserDaoTest {
     void userNull(){
         assertThrows(EmptyResultDataAccessException.class, () -> {
             userDao.deleteAll();
-            userDao.get("30");
+            userDao.findById("30");
         });
     }
 }

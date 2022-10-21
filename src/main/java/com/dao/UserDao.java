@@ -58,7 +58,7 @@ public class UserDao {
     }
 
 
-    public User get(String id) throws SQLException {
+    public User findById(String id) throws SQLException {
 
             Connection conn = connectionMaker.getConnection();
 
