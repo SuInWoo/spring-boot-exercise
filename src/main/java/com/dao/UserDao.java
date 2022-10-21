@@ -20,6 +20,42 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
+    //jdbc 분리 공통 부분
+    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = connectionMaker.getConnection();
+
+            StatementStrategy strategy = new DeleteAllStatement();
+            ps = strategy.makePreparedStatement(conn);
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
+
+    }
+
+    public void deleteAll() throws SQLException {
+        jdbcContextWithStatementStrategy(new DeleteAllStatement());
+    }
+
     public void add(User user) throws SQLException {
 
             Connection conn = connectionMaker.getConnection();
@@ -59,38 +95,6 @@ public class UserDao {
             if (user == null) throw new EmptyResultDataAccessException(1);
 
             return user;
-
-    }
-
-    public void deleteAll() throws SQLException {
-        Connection conn = null;
-        PreparedStatement ps = null;
-
-        try {
-            conn = connectionMaker.getConnection();
-
-            StatementStrategy strategy = new DeleteAllStatement();
-            ps = strategy.makePreparedStatement(conn);
-
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
-
 
     }
 
