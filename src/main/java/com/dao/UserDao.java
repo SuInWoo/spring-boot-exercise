@@ -50,11 +50,28 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        jdbcContextWithStatementStrategy(new DeleteAllStatement());
+        jdbcContextWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
+                return conn.prepareStatement("DELETE FROM users");
+            }
+        });
     }
 
     public void add(User user) throws SQLException {
-        jdbcContextWithStatementStrategy(new AddStatement(user));
+        jdbcContextWithStatementStrategy(
+                new StatementStrategy() {
+                    @Override
+                    public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
+                        PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
+                        ps.setString(1, user.getId());
+                        ps.setString(2, user.getName());
+                        ps.setString(3, user.getPassword());
+
+                        return ps;
+                    }
+                }
+        );
     }
 
 
