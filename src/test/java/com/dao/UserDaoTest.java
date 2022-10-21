@@ -62,4 +62,13 @@ class UserDaoTest {
 
         userDao.deleteAll();
     }
+
+    @Test
+    @DisplayName("user null Test")
+    void userNull(){
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            userDao.deleteAll();
+            userDao.get("30");
+        });
+    }
 }
