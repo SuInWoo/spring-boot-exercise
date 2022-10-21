@@ -27,10 +27,7 @@ public class UserDao {
 
         try {
             conn = connectionMaker.getConnection();
-
-            StatementStrategy strategy = new DeleteAllStatement();
-            ps = strategy.makePreparedStatement(conn);
-
+            ps = stmt.makePreparedStatement(conn);
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -57,18 +54,7 @@ public class UserDao {
     }
 
     public void add(User user) throws SQLException {
-
-            Connection conn = connectionMaker.getConnection();
-
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
-            ps.setString(1, user.getId());
-            ps.setString(2, user.getName());
-            ps.setString(3, user.getPassword());
-
-            ps.executeUpdate(); //ctrl + enter
-            ps.close();
-            conn.close();
-
+        jdbcContextWithStatementStrategy(new AddStatement(user));
     }
 
 
