@@ -11,6 +11,11 @@ import java.sql.SQLException;
 public class UserDao {
 
     private ConnectionMaker connectionMaker;
+    private JdbcContext jdbcContext;
+
+    public void setJdbcContext(JdbcContext jdbcContext) {
+        this.jdbcContext = jdbcContext;
+    }
 
     public UserDao() {
         this.connectionMaker = new LocalConnectionMaker();
@@ -20,37 +25,9 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
-    //jdbc 분리 공통 부분
-    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ps = null;
-
-        try {
-            conn = connectionMaker.getConnection();
-            ps = stmt.makePreparedStatement(conn);
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
-
-    }
 
     public void deleteAll() throws SQLException {
-        jdbcContextWithStatementStrategy(new StatementStrategy() {
+        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
             @Override
             public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
                 return conn.prepareStatement("DELETE FROM users");
@@ -59,7 +36,7 @@ public class UserDao {
     }
 
     public void add(final User user) throws SQLException {
-        jdbcContextWithStatementStrategy(
+        this.jdbcContext.workWithStatementStrategy(
                 new StatementStrategy() {
                     @Override
                     public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
