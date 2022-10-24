@@ -58,7 +58,7 @@ public class UserDao {
         });
     }
 
-    public void add(User user) throws SQLException {
+    public void add(final User user) throws SQLException {
         jdbcContextWithStatementStrategy(
                 new StatementStrategy() {
                     @Override
