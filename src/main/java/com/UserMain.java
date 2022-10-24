@@ -1,9 +1,5 @@
 package com;
 
-import com.dao.AWSConnectionMaker;
-import com.dao.UserDao;
-import com.domain.User;
-
 import java.sql.SQLException;
 
 public class UserMain {

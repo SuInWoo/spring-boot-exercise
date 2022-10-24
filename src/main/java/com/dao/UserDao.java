@@ -3,6 +3,7 @@ package com.dao;
 import com.domain.User;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,14 +11,10 @@ import java.sql.SQLException;
 
 public class UserDao {
 
-    private ConnectionMaker connectionMaker;
+    private DataSource dataSource;
 
-    public UserDao() {
-        this.connectionMaker = new AWSConnectionMaker();
-    }
-
-    public UserDao(ConnectionMaker connectionMaker) {
-        this.connectionMaker = connectionMaker;
+    public UserDao(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
@@ -25,7 +22,7 @@ public class UserDao {
         PreparedStatement ps = null;
 
         try {
-            conn = connectionMaker.getConnection();
+            conn = dataSource.getConnection();
             ps = stmt.makePreparedStatement(conn);
             ps.executeUpdate();
 
@@ -66,7 +63,7 @@ public class UserDao {
 
     public User findById(String id) throws SQLException {
 
-            Connection conn = connectionMaker.getConnection();
+            Connection conn = dataSource.getConnection();
 
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM `users` WHERE id = ?");
             ps.setString(1, id);
@@ -96,7 +93,7 @@ public class UserDao {
         ResultSet rs = null;
 
         try {
-            conn = connectionMaker.getConnection();
+            conn = dataSource.getConnection();
 
             ps = conn.prepareStatement("select count(*) from `users`");
 
