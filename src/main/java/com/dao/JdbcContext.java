@@ -32,7 +32,7 @@ public class JdbcContext {
     }
 
     public void executeSql(final String query) throws SQLException {
-        workWithStatementStrategy(
+        this.workWithStatementStrategy(
                 new StatementStrategy() {
                     @Override
                     public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
