@@ -11,44 +11,56 @@ import java.sql.SQLException;
 public class UserDao {
 
     private ConnectionMaker connectionMaker;
-    private JdbcContext jdbcContext;
-
-    public void setJdbcContext(JdbcContext jdbcContext) {
-        this.jdbcContext = jdbcContext;
-    }
 
     public UserDao() {
-        this.connectionMaker = new LocalConnectionMaker();
+        this.connectionMaker = new AWSConnectionMaker();
     }
 
     public UserDao(ConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
     }
 
+    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
 
-    public void deleteAll() throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
-                return conn.prepareStatement("DELETE FROM users");
-            }
-        });
+        try {
+            conn = connectionMaker.getConnection();
+            ps = stmt.makePreparedStatement(conn);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (ps != null) { try { ps.close(); } catch (SQLException e) { } }
+            if (conn != null) { try { conn.close(); } catch (SQLException e) { } }
+        }
+
     }
 
-    public void add(final User user) throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(
+    public void deleteAll() throws SQLException {
+        jdbcContextWithStatementStrategy(
                 new StatementStrategy() {
                     @Override
                     public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
-                        PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
-                        ps.setString(1, user.getId());
-                        ps.setString(2, user.getName());
-                        ps.setString(3, user.getPassword());
-
-                        return ps;
+                        return conn.prepareStatement("delete from users");
                     }
                 }
         );
+
+    }
+
+    public void add(final User user) throws SQLException {
+        jdbcContextWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
+                ps.setString(1, user.getId());
+                ps.setString(2, user.getName());
+                ps.setString(3, user.getPassword());
+                return ps;
+            }
+        });
     }
 
 

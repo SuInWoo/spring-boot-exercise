@@ -6,7 +6,7 @@
 //import java.sql.PreparedStatement;
 //import java.sql.SQLException;
 //
-//public class AddStatement {
+//public class AddStatement implements StatementStrategy{
 //
 //    User user;
 //
@@ -14,16 +14,15 @@
 //        this.user = user;
 //    }
 //
-//    StatementStrategy st = new StatementStrategy() {
-//        @Override
-//        public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
+//    @Override
+//    public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
 //
-//            PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
-//            ps.setString(1, user.getId());
-//            ps.setString(2, user.getName());
-//            ps.setString(3, user.getPassword());
+//        PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
+//        ps.setString(1, user.getId());
+//        ps.setString(2, user.getName());
+//        ps.setString(3, user.getPassword());
 //
-//            return ps;
-//        }
-//    };
+//        return ps;
+//    }
+//
 //}
