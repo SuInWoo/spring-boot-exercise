@@ -11,35 +11,20 @@ import java.sql.SQLException;
 
 public class UserDao {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
+    private final JdbcContext jdbcContext;
 
     public UserDao(DataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
-        Connection conn = null;
-        PreparedStatement ps = null;
-
-        try {
-            conn = dataSource.getConnection();
-            ps = stmt.makePreparedStatement(conn);
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (ps != null) { try { ps.close(); } catch (SQLException e) { } }
-            if (conn != null) { try { conn.close(); } catch (SQLException e) { } }
-        }
-
+        this.jdbcContext = new JdbcContext(dataSource);
     }
 
     public void deleteAll() throws SQLException {
-        jdbcContextWithStatementStrategy(
+        jdbcContext.workWithStatementStrategy(
                 new StatementStrategy() {
                     @Override
-                    public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
+                    public PreparedStatement makePreparedStatement(Connection conn)
+                            throws SQLException {
                         return conn.prepareStatement("delete from users");
                     }
                 }
@@ -48,10 +33,12 @@ public class UserDao {
     }
 
     public void add(final User user) throws SQLException {
-        jdbcContextWithStatementStrategy(new StatementStrategy() {
+        jdbcContext.workWithStatementStrategy(new StatementStrategy() {
             @Override
-            public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
-                PreparedStatement ps = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
+            public PreparedStatement makePreparedStatement(Connection conn)
+                    throws SQLException {
+                PreparedStatement ps = conn.prepareStatement
+                        ("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
                 ps.setString(1, user.getId());
                 ps.setString(2, user.getName());
                 ps.setString(3, user.getPassword());
@@ -65,7 +52,8 @@ public class UserDao {
 
             Connection conn = dataSource.getConnection();
 
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM `users` WHERE id = ?");
+            PreparedStatement ps = conn.prepareStatement
+                    ("SELECT * FROM `users` WHERE id = ?");
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
             User user = null;
