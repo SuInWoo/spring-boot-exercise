@@ -1,107 +1,47 @@
 package com.dao;
 
 import com.domain.User;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDao {
 
-    private final DataSource dataSource;
-    private final JdbcContext jdbcContext;
+    private JdbcTemplate jdbcTemplate;
 
     public UserDao(DataSource dataSource) {
-        this.dataSource = dataSource;
-        this.jdbcContext = new JdbcContext(dataSource);
+       this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public void deleteAll() throws SQLException {
-        this.jdbcContext.executeSql("delete from users");
+        this.jdbcTemplate.update("delete from users");
    }
 
     public void add(final User user) throws SQLException {
-        jdbcContext.workWithStatementStrategy(new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection conn)
-                    throws SQLException {
-                PreparedStatement ps = conn.prepareStatement
-                        ("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
-                ps.setString(1, user.getId());
-                ps.setString(2, user.getName());
-                ps.setString(3, user.getPassword());
-                return ps;
-            }
-        });
-    }
-
-
-    public User findById(String id) throws SQLException {
-
-            Connection conn = dataSource.getConnection();
-
-            PreparedStatement ps = conn.prepareStatement
-                    ("SELECT * FROM `users` WHERE id = ?");
-            ps.setString(1, id);
-            ResultSet rs = ps.executeQuery();
-            User user = null;
-
-            if (rs.next()) {
-                user = new User();
-                user.setId(rs.getString("id"));
-                user.setName(rs.getString("name"));
-                user.setPassword(rs.getString("password"));
-            }
-
-            rs.close();
-            ps.close();
-            conn.close();
-
-            if (user == null) throw new EmptyResultDataAccessException(1);
-
-            return user;
-
+        this.jdbcTemplate.update
+                ("INSERT INTO users(id, name, password) VALUES (?, ?, ?)",
+                        user.getId(), user.getName(), user.getPassword());
     }
 
     public int getCount() throws SQLException {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        return this.jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
+    }
 
-        try {
-            conn = dataSource.getConnection();
-
-            ps = conn.prepareStatement("select count(*) from `users`");
-
-            rs = ps.executeQuery();
-            rs.next();
-            return rs.getInt(1);
-
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                }
+    public User findById(String id) throws SQLException {
+        String sql = "select * from users where id = ?";
+        RowMapper<User> rowMapper = new RowMapper<User>() {
+            @Override
+            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                User user = new User(rs.getString("id"), rs.getString("name")
+                        , rs.getString("password"));
+                return user;
             }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
+        };
+
+        return this.jdbcTemplate.queryForObject(sql, rowMapper, id);
     }
 }
 
